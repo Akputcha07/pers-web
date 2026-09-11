@@ -23,8 +23,8 @@
     "@astrojs/check": "^0.9.4",
     "typescript": "^5.9.3"
   },
-  "_comment_overrides": "astro pins vite ^6 while @tailwindcss/vite allows ^6-^8. Without this, npm installs two copies and `astro check` reports a bogus Plugin type mismatch.",
+  "_comment_overrides": "Keeps a single copy of vite shared by astro and @tailwindcss/vite. Must satisfy astro's own vite range (astro 7 requires ^8), or `astro build` fails with 'rollupOptions.input should not be an html file'.",
   "overrides": {
-    "vite": "^6.4.1"
+    "vite": "^8.0.13"
   }
 }

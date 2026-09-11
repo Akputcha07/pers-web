@@ -15,7 +15,7 @@ Three things it does:
 
 ## Prerequisites
 
-Node.js 20.3 or newer (22 LTS recommended). Node is **not installed on this
+Node.js 22.12 or newer (required by Astro 7). Node is **not installed on this
 machine** — install it before you can run anything:
 
 ```powershell
@@ -188,7 +188,7 @@ public/               # served as-is: favicon, robots.txt, _headers, resume.pdf
   the mobile menu, and the project filter — a few dozen lines of vanilla JS.
 - **Drafts** (`draft: true`) render in `npm run dev` and are excluded from
   `npm run build`, so you can work on a write-up before publishing it.
-- **The `overrides` block in `package.json`** pins a single copy of Vite. Astro
-  depends on Vite 6 while `@tailwindcss/vite` accepts 6 through 8; without the
-  pin, npm installs two copies and `npm run check` reports a spurious plugin
-  type error. Remove it only if Astro and Tailwind converge on one major.
+- **The `overrides` block in `package.json`** pins a single copy of Vite shared
+  by Astro and `@tailwindcss/vite`. It must stay inside Astro's own Vite range
+  (Astro 7 needs Vite 8). Pinning an older major makes `astro build` fail with
+  "rollupOptions.input should not be an html file when building for SSR".
