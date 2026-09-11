@@ -1,0 +1,198 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Chip from '../../components/Chip.astro';
+import { getProjects, DOMAIN_META, STATUS_META, formatRange } from '../../lib/projects';
+
+export const getStaticPaths = (async () => {
+  const projects = await getProjects();
+
+  return projects.map((project, index) => ({
+    params: { slug: project.id },
+    props: {
+      project,
+      // Neighbours for the prev/next footer, in the same order as /projects.
+      prev: projects[index - 1] ?? null,
+      next: projects[index + 1] ?? null,
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const { project, prev, next } = Astro.props;
+const { data } = project;
+const { Content } = await render(project);
+
+const domain = DOMAIN_META[data.domain];
+const status = data.status ? STATUS_META[data.status] : undefined;
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.summary}
+  image={data.cover}
+  type="article"
+>
+  <a
+    href="/projects/"
+    class="group inline-block font-mono text-xs text-muted transition-colors hover:text-accent"
+  >
+    <span class="inline-block transition-transform group-hover:-translate-x-0.5" aria-hidden="true">
+      &larr;{' '}
+    </span>
+    All projects
+  </a>
+
+  {/* ----------------------------------------------------------------- Head */}
+  <header class="mt-6 border-b border-line pb-10">
+    <div class="flex flex-wrap items-center gap-2">
+      <Chip class={domain.chip}>
+        <span class:list={['size-1.5 rounded-full', domain.dot]} aria-hidden="true"></span>
+        {domain.label}
+      </Chip>
+      {status && <Chip class={status.chip}>{status.label}</Chip>}
+    </div>
+
+    <h1 class="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+      {data.title}
+    </h1>
+
+    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-muted">{data.summary}</p>
+
+    {
+      (data.started || data.role || data.org) && (
+        <dl class="mt-8 grid gap-x-8 gap-y-4 sm:grid-cols-3">
+          {data.started && (
+            <div>
+              <dt class="eyebrow">Timeline</dt>
+              <dd class="mt-1 text-sm text-ink">{formatRange(data.started, data.ended)}</dd>
+            </div>
+          )}
+          {data.role && (
+            <div>
+              <dt class="eyebrow">Role</dt>
+              <dd class="mt-1 text-sm text-ink">{data.role}</dd>
+            </div>
+          )}
+          {data.org && (
+            <div>
+              <dt class="eyebrow">Context</dt>
+              <dd class="mt-1 text-sm text-ink">{data.org}</dd>
+            </div>
+          )}
+        </dl>
+      )
+    }
+
+    {
+      data.links.length > 0 && (
+        <div class="mt-8 flex flex-wrap gap-2.5">
+          {data.links.map((link, index) => (
+            <a
+              href={link.href}
+              rel="noopener"
+              class:list={[
+                'rounded-md px-3.5 py-2 text-sm font-medium transition-colors',
+                index === 0
+                  ? 'bg-accent text-bg hover:bg-accent-hover'
+                  : 'border border-line-strong text-ink hover:border-accent hover:text-accent',
+              ]}
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </header>
+
+  {
+    data.cover && (
+      <img
+        src={data.cover}
+        alt={data.coverAlt ?? ''}
+        loading="eager"
+        decoding="async"
+        class="mt-10 w-full rounded-lg border border-line object-cover"
+      />
+    )
+  }
+
+  <div class="mt-12 gap-12 lg:grid lg:grid-cols-[1fr_15rem] lg:items-start">
+    {/* ------------------------------------------------------------- Body */}
+    <div>
+      {
+        data.highlights.length > 0 && (
+          <div class="mb-10 rounded-lg border border-line bg-bg-sunk p-6">
+            <p class="eyebrow">Highlights</p>
+            <ul class="mt-3 space-y-2.5">
+              {data.highlights.map((highlight) => (
+                <li class="flex gap-3 text-sm leading-relaxed text-ink">
+                  <span class="mt-2 size-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                  <span>{highlight}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
+      <article class="prose prose-sm max-w-none sm:prose-base">
+        <Content />
+      </article>
+    </div>
+
+    {/* ---------------------------------------------------------- Sidebar */}
+    <aside class="mt-12 lg:sticky lg:top-24 lg:mt-0">
+      {
+        data.tech.length > 0 && (
+          <div class="rounded-lg border border-line p-5">
+            <p class="eyebrow">Stack</p>
+            <ul class="mt-3 flex flex-wrap gap-1.5">
+              {data.tech.map((item) => (
+                <li class="rounded border border-line bg-bg-sunk px-2 py-1 font-mono text-[0.6875rem] text-muted">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </aside>
+  </div>
+
+  {/* ------------------------------------------------------------ Prev/next */}
+  {
+    (prev || next) && (
+      <nav
+        class="mt-20 grid gap-4 border-t border-line pt-8 sm:grid-cols-2"
+        aria-label="More projects"
+      >
+        {prev ? (
+          <a
+            href={`/projects/${prev.id}/`}
+            class="group rounded-lg border border-line p-4 transition-colors hover:border-line-strong"
+          >
+            <p class="eyebrow">Previous</p>
+            <p class="mt-1.5 text-sm font-medium text-ink transition-colors group-hover:text-accent">
+              {prev.data.title}
+            </p>
+          </a>
+        ) : (
+          <div />
+        )}
+        {next && (
+          <a
+            href={`/projects/${next.id}/`}
+            class="group rounded-lg border border-line p-4 transition-colors hover:border-line-strong sm:text-right"
+          >
+            <p class="eyebrow">Next</p>
+            <p class="mt-1.5 text-sm font-medium text-ink transition-colors group-hover:text-accent">
+              {next.data.title}
+            </p>
+          </a>
+        )}
+      </nav>
+    )
+  }
+</BaseLayout>

@@ -1,0 +1,266 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Chip from '../components/Chip.astro';
+import {
+  SITE,
+  SOCIALS,
+  RESUME,
+  AVAILABILITY,
+  SKILLS,
+  EXPERIENCE,
+  EDUCATION,
+  CREDENTIALS,
+} from '../data/site';
+---
+
+<BaseLayout
+  title="About"
+  description={`Background, experience and skills for ${SITE.name}, ${SITE.role}.`}
+>
+  {/* ---------------------------------------------------------------- Intro */}
+  <header class="max-w-2xl">
+    <p class="eyebrow">Background</p>
+    <h1 class="mt-2 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+      {SITE.name}
+    </h1>
+    <p class="mt-2 font-mono text-sm text-accent">{SITE.role}</p>
+    <p class="mt-6 text-base leading-relaxed text-muted">{SITE.blurb}</p>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      {
+        RESUME.href && (
+          <a
+            href={RESUME.href}
+            class="rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-bg transition-colors hover:bg-accent-hover"
+          >
+            Resume (PDF)
+          </a>
+        )
+      }
+      {
+        SOCIALS.map((social) => (
+          <a
+            href={social.href}
+            rel={social.href.startsWith('http') ? 'me noopener' : undefined}
+            class="rounded-md border border-line-strong px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-accent hover:text-accent"
+          >
+            {social.label}
+          </a>
+        ))
+      }
+    </div>
+
+    {
+      RESUME.href && RESUME.updated && (
+        <p class="mt-3 font-mono text-[0.6875rem] text-faint">
+          Resume last updated {RESUME.updated}
+        </p>
+      )
+    }
+  </header>
+
+  {/* --------------------------------------------------------- Availability */}
+  {
+    AVAILABILITY.available && AVAILABILITY.detail && (
+      <section class="mt-12 rounded-lg border border-accent/30 bg-accent-soft p-6">
+        <p class="font-mono text-xs font-medium text-accent">{AVAILABILITY.headline}</p>
+        <p class="mt-2 text-sm leading-relaxed text-ink">{AVAILABILITY.detail}</p>
+      </section>
+    )
+  }
+
+  {/* ----------------------------------------------------------- Experience */}
+  {
+    EXPERIENCE.length > 0 && (
+      <section class="mt-20">
+        <h2 class="eyebrow">Experience</h2>
+
+        <ol class="mt-6 space-y-10">
+          {EXPERIENCE.map((job) => (
+            <li class="relative border-l border-line pl-6 sm:pl-8">
+              <span
+                class="absolute -left-[4.5px] top-1.5 size-2 rounded-full border-2 border-bg bg-accent"
+                aria-hidden="true"
+              />
+
+              <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                <h3 class="text-base font-semibold tracking-tight text-ink">
+                  {job.role}
+                  <span class="font-normal text-muted"> at {job.org}</span>
+                </h3>
+                <p class="font-mono text-xs whitespace-nowrap text-faint">{job.period}</p>
+              </div>
+
+              {job.location && (
+                <p class="mt-1 font-mono text-[0.6875rem] text-faint">{job.location}</p>
+              )}
+
+              <ul class="mt-4 space-y-2.5">
+                {job.points.map((point) => (
+                  <li class="flex gap-3 text-sm leading-relaxed text-muted">
+                    <span class="mt-2 size-1 shrink-0 rounded-full bg-line-strong" aria-hidden="true" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {job.stack && job.stack.length > 0 && (
+                <ul class="mt-4 flex flex-wrap gap-1.5">
+                  {job.stack.map((item) => (
+                    <li class="rounded border border-line bg-bg-sunk px-1.5 py-0.5 font-mono text-[0.6875rem] text-faint">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+
+  {/* ------------------------------------------------------------ Education */}
+  {
+    EDUCATION.length > 0 && (
+      <section class="mt-20">
+        <h2 class="eyebrow">Education</h2>
+
+        <div class="mt-6 space-y-10">
+          {EDUCATION.map((school) => (
+            <div class="rounded-lg border border-line p-6">
+              <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                <h3 class="text-base font-semibold tracking-tight text-ink">{school.school}</h3>
+                <p class="font-mono text-xs whitespace-nowrap text-faint">{school.period}</p>
+              </div>
+
+              <p class="mt-1 text-sm text-muted">{school.credential}</p>
+
+              <div class="mt-2 flex flex-wrap gap-x-4 font-mono text-[0.6875rem] text-faint">
+                {school.location && <span>{school.location}</span>}
+                {school.gpa && <span>GPA {school.gpa}</span>}
+              </div>
+
+              {school.notes && school.notes.length > 0 && (
+                <ul class="mt-4 space-y-1.5">
+                  {school.notes.map((note) => (
+                    <li class="text-sm text-muted">{note}</li>
+                  ))}
+                </ul>
+              )}
+
+              {school.coursework && school.coursework.length > 0 && (
+                <div class="mt-5 border-t border-line pt-4">
+                  <p class="eyebrow">Relevant coursework</p>
+                  <ul class="mt-2.5 flex flex-wrap gap-1.5">
+                    {school.coursework.map((course) => (
+                      <li>
+                        <Chip class="border-line text-muted" mono={false}>
+                          {course}
+                        </Chip>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {/* --------------------------------------------------------------- Skills */}
+  {
+    SKILLS.length > 0 && (
+      <section class="mt-20">
+        <h2 class="eyebrow">Skills</h2>
+
+        <dl class="mt-6 grid gap-x-8 gap-y-7 sm:grid-cols-2">
+          {SKILLS.map((group) => (
+            <div>
+              <dt
+                class:list={[
+                  'font-mono text-xs font-medium',
+                  group.domain === 'hardware' ? 'text-hardware' : 'text-software',
+                ]}
+              >
+                {group.title}
+              </dt>
+              <dd class="mt-2.5">
+                <ul class="flex flex-wrap gap-1.5">
+                  {group.items.map((item) => (
+                    <li class="rounded border border-line bg-bg-sunk px-2 py-1 font-mono text-[0.6875rem] text-muted">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    )
+  }
+
+  {/* ---------------------------------------------------------- Credentials */}
+  {
+    CREDENTIALS.length > 0 && (
+      <section class="mt-20">
+        <h2 class="eyebrow">Certifications</h2>
+
+        <ul class="mt-6 divide-y divide-line border-y border-line">
+          {CREDENTIALS.map((credential) => (
+            <li class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-4">
+              <div>
+                <p class="text-sm font-medium text-ink">
+                  {credential.href ? (
+                    <a
+                      href={credential.href}
+                      rel="noopener"
+                      class="underline decoration-line-strong underline-offset-4 transition-colors hover:text-accent"
+                    >
+                      {credential.title}
+                    </a>
+                  ) : (
+                    credential.title
+                  )}
+                </p>
+                {credential.issuer && (
+                  <p class="mt-0.5 text-sm text-muted">{credential.issuer}</p>
+                )}
+              </div>
+              {credential.year && (
+                <p class="font-mono text-xs text-faint">{credential.year}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {/* -------------------------------------------------------------- Contact */}
+  <section class="mt-20 rounded-lg border border-line bg-bg-sunk p-8">
+    <h2 class="text-xl font-semibold tracking-tight text-ink">Get in touch</h2>
+    <p class="mt-2 max-w-xl text-sm leading-relaxed text-muted">
+      You can reach me by email. I am based in {SITE.location}.
+    </p>
+    <ul class="mt-6 space-y-2">
+      {
+        SOCIALS.map((social) => (
+          <li class="flex flex-wrap items-baseline gap-x-3 text-sm">
+            <span class="w-20 shrink-0 font-mono text-xs text-faint">{social.label}</span>
+            <a
+              href={social.href}
+              rel={social.href.startsWith('http') ? 'me noopener' : undefined}
+              class="text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+            >
+              {social.handle}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>

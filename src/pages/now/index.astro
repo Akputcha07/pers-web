@@ -1,0 +1,147 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Chip from '../../components/Chip.astro';
+import { getNowEntries, getProjects, formatDay, relativeTime } from '../../lib/projects';
+
+const entries = await getNowEntries();
+const [current, ...archive] = entries;
+
+// Render only the newest entry in full; the rest stay collapsed as summaries.
+const CurrentBody = current ? (await render(current)).Content : null;
+
+// Map slugs referenced in frontmatter to real projects, dropping any that no
+// longer exist so a typo in a Markdown file cannot break the build.
+const projects = await getProjects();
+const projectsById = new Map(projects.map((project) => [project.id, project]));
+const linked = current
+  ? current.data.projects
+      .map((id) => projectsById.get(id))
+      .filter((project) => project !== undefined)
+  : [];
+---
+
+<BaseLayout
+  title="Now"
+  description="What I am working on, learning and thinking about at the moment."
+>
+  <header class="max-w-2xl">
+    <p class="eyebrow">Status</p>
+    <h1 class="mt-2 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+      What I am working on now
+    </h1>
+    <p class="mt-4 text-base leading-relaxed text-muted">
+      A running log of current work, kept deliberately short and updated when
+      something actually changes. Older entries stay below so you can see the
+      through-line.
+    </p>
+  </header>
+
+  {
+    !current && (
+      <p class="mt-12 rounded-lg border border-dashed border-line-strong p-8 text-center text-sm text-muted">
+        No updates yet. Add a Markdown file to
+        <code class="mx-1 font-mono text-xs text-ink">src/content/now/</code>
+        and it will appear here.
+      </p>
+    )
+  }
+
+  {
+    current && (
+      <section class="mt-12 rounded-lg border border-line bg-surface p-6 sm:p-9">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span class="inline-flex items-center gap-2 font-mono text-xs text-accent">
+            <span class="relative flex size-1.5" aria-hidden="true">
+              <span class="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60" />
+              <span class="relative inline-flex size-1.5 rounded-full bg-accent" />
+            </span>
+            Right now
+          </span>
+          <time datetime={current.data.date.toISOString()} class="font-mono text-xs text-faint">
+            {formatDay(current.data.date)} &middot; {relativeTime(current.data.date)}
+          </time>
+        </div>
+
+        <h2 class="mt-4 text-2xl font-semibold tracking-tight text-ink">
+          {current.data.title}
+        </h2>
+        <p class="mt-3 text-base leading-relaxed text-muted">{current.data.summary}</p>
+
+        {current.data.focus.length > 0 && (
+          <ul class="mt-6 flex flex-wrap gap-2">
+            {current.data.focus.map((item) => (
+              <li>
+                <Chip class="border-line-strong bg-bg-sunk text-muted">{item}</Chip>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {CurrentBody && (
+          <div class="prose prose-sm mt-8 max-w-none border-t border-line pt-8 sm:prose-base">
+            <CurrentBody />
+          </div>
+        )}
+
+        {linked.length > 0 && (
+          <div class="mt-8 border-t border-line pt-6">
+            <p class="eyebrow">Related projects</p>
+            <ul class="mt-3 flex flex-wrap gap-2">
+              {linked.map((project) => (
+                <li>
+                  <a
+                    href={`/projects/${project.id}/`}
+                    class="inline-block rounded-md border border-line px-3 py-1.5 text-xs text-muted transition-colors hover:border-accent hover:text-accent"
+                  >
+                    {project.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+    )
+  }
+
+  {
+    archive.length > 0 && (
+      <section class="mt-16">
+        <div class="flex items-baseline justify-between gap-4">
+          <h2 class="eyebrow">Earlier updates</h2>
+          <a
+            href="/rss.xml"
+            class="font-mono text-[0.6875rem] text-faint transition-colors hover:text-accent"
+          >
+            RSS
+          </a>
+        </div>
+
+        <ol class="mt-4">
+          {archive.map((entry) => (
+            <li class="border-t border-line">
+              <a
+                href={`/now/${entry.id}/`}
+                class="group flex flex-col gap-1 py-5 sm:flex-row sm:items-baseline sm:gap-6"
+              >
+                <time
+                  datetime={entry.data.date.toISOString()}
+                  class="shrink-0 font-mono text-xs text-faint sm:w-28"
+                >
+                  {formatDay(entry.data.date)}
+                </time>
+                <div>
+                  <p class="text-sm font-medium text-ink transition-colors group-hover:text-accent">
+                    {entry.data.title}
+                  </p>
+                  <p class="mt-1 text-sm leading-relaxed text-muted">{entry.data.summary}</p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+</BaseLayout>

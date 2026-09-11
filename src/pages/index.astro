@@ -1,0 +1,206 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import Chip from '../components/Chip.astro';
+import { SITE, SOCIALS, RESUME, AVAILABILITY, SKILLS } from '../data/site';
+import { getFeaturedProjects, getNowEntries, relativeTime } from '../lib/projects';
+
+const featured = await getFeaturedProjects(3);
+const [latestNow] = await getNowEntries();
+---
+
+<BaseLayout contained={false}>
+  {/* ------------------------------------------------------------------ Hero */}
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="grid-backdrop pointer-events-none absolute inset-0 opacity-70" aria-hidden="true"></div>
+
+    <div class="relative mx-auto max-w-5xl px-5 py-20 sm:px-8 sm:py-28">
+      {
+        AVAILABILITY.available && (
+          <p class="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-soft px-3 py-1 font-mono text-xs text-accent">
+            <span class="relative flex size-1.5" aria-hidden="true">
+              <span class="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60" />
+              <span class="relative inline-flex size-1.5 rounded-full bg-accent" />
+            </span>
+            {AVAILABILITY.headline}
+          </p>
+        )
+      }
+
+      <h1 class="max-w-3xl text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
+        {SITE.name}
+      </h1>
+      <p class="mt-3 font-mono text-sm text-accent sm:text-base">{SITE.role}</p>
+
+      <p class="mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
+        {SITE.blurb}
+      </p>
+
+      <div class="mt-9 flex flex-wrap items-center gap-3">
+        <a
+          href="/projects/"
+          class="rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-bg transition-colors hover:bg-accent-hover"
+        >
+          See the projects
+        </a>
+        {
+          RESUME.href && (
+            <a
+              href={RESUME.href}
+              class="rounded-md border border-line-strong px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-accent hover:text-accent"
+            >
+              Download resume
+            </a>
+          )
+        }
+      </div>
+
+      <ul class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2">
+        <li class="font-mono text-xs text-faint">{SITE.location}</li>
+        {
+          SOCIALS.map((social) => (
+            <li>
+              <a
+                href={social.href}
+                rel={social.href.startsWith('http') ? 'me noopener' : undefined}
+                class="font-mono text-xs text-muted underline decoration-line-strong underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+              >
+                {social.handle}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------------- Right now */}
+  {
+    latestNow && (
+      <section class="border-b border-line bg-bg-sunk">
+        <div class="mx-auto max-w-5xl px-5 py-12 sm:px-8 sm:py-14">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+            <p class="eyebrow">Currently</p>
+            <p class="font-mono text-[0.6875rem] text-faint">
+              updated {relativeTime(latestNow.data.date)}
+            </p>
+          </div>
+
+          <h2 class="mt-2 text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+            <a href="/now/" class="transition-colors hover:text-accent">
+              {latestNow.data.title}
+            </a>
+          </h2>
+
+          <p class="mt-3 max-w-2xl text-base leading-relaxed text-muted">
+            {latestNow.data.summary}
+          </p>
+
+          {latestNow.data.focus.length > 0 && (
+            <ul class="mt-5 flex flex-wrap gap-2">
+              {latestNow.data.focus.map((item) => (
+                <li>
+                  <Chip class="border-line-strong bg-surface text-muted">{item}</Chip>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <a
+            href="/now/"
+            class="group mt-6 inline-block font-mono text-xs text-muted transition-colors hover:text-accent"
+          >
+            Read the full log
+            <span class="inline-block transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+              {' '}&rarr;
+            </span>
+          </a>
+        </div>
+      </section>
+    )
+  }
+
+  {/* --------------------------------------------------------------- Projects */}
+  <section class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-20">
+    <SectionHeading
+      eyebrow="Selected work"
+      title="Projects I am proud of"
+      href="/projects/"
+      linkLabel="All projects"
+    />
+
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {featured.map((project) => <ProjectCard project={project} />)}
+    </div>
+  </section>
+
+  {/* ----------------------------------------------------------------- Skills */}
+  <section class="border-t border-line bg-bg-sunk">
+    <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-20">
+      <SectionHeading
+        eyebrow="Capabilities"
+        title="What I work with"
+        href="/about/"
+        linkLabel="Full background"
+      />
+
+      <dl class="mt-8 grid gap-x-8 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          SKILLS.map((group) => (
+            <div>
+              <dt
+                class:list={[
+                  'font-mono text-xs font-medium',
+                  group.domain === 'hardware' ? 'text-hardware' : 'text-software',
+                ]}
+              >
+                {group.title}
+              </dt>
+              <dd class="mt-2 text-sm leading-relaxed text-muted">
+                {group.items.join(' · ')}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  {/* ---------------------------------------------------------------- Contact */}
+  <section class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-20">
+    <div class="rounded-lg border border-line bg-surface p-8 sm:p-10">
+      <p class="eyebrow">Get in touch</p>
+      <h2 class="mt-2 max-w-lg text-2xl font-semibold tracking-tight text-ink">
+        {
+          AVAILABILITY.available
+            ? 'I am open to new roles and interesting problems.'
+            : 'Always happy to talk shop.'
+        }
+      </h2>
+      <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted">
+        Reach out about roles, collaborations, or anything you have seen here that
+        you want to know more about.
+      </p>
+
+      <div class="mt-7 flex flex-wrap gap-3">
+        {
+          SOCIALS.map((social, index) => (
+            <a
+              href={social.href}
+              rel={social.href.startsWith('http') ? 'me noopener' : undefined}
+              class:list={[
+                'rounded-md px-4 py-2.5 text-sm font-medium transition-colors',
+                index === 0
+                  ? 'bg-accent text-bg hover:bg-accent-hover'
+                  : 'border border-line-strong text-ink hover:border-accent hover:text-accent',
+              ]}
+            >
+              {social.label}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>

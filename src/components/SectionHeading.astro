@@ -1,0 +1,33 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  /** Optional "see all" style link on the right. */
+  href?: string;
+  linkLabel?: string;
+}
+
+const { eyebrow, title, href, linkLabel = 'View all' } = Astro.props;
+---
+
+<div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+  <div>
+    <p class="eyebrow">{eyebrow}</p>
+    <h2 class="mt-1.5 text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+      {title}
+    </h2>
+  </div>
+  {
+    href && (
+      <a
+        href={href}
+        class="group font-mono text-xs text-muted transition-colors hover:text-accent"
+      >
+        {linkLabel}
+        <span class="inline-block transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+          {' '}&rarr;
+        </span>
+      </a>
+    )
+  }
+</div>

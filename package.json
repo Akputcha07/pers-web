@@ -1,0 +1,30 @@
+{
+  "name": "pers-web",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.12",
+    "@astrojs/sitemap": "^3.6.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^7.3.2",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "^5.9.3"
+  },
+  "_comment_overrides": "astro pins vite ^6 while @tailwindcss/vite allows ^6-^8. Without this, npm installs two copies and `astro check` reports a bogus Plugin type mismatch.",
+  "overrides": {
+    "vite": "^6.4.1"
+  }
+}
