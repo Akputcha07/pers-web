@@ -6,7 +6,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   // EDIT ME: your production domain. Powers canonical URLs, sitemap.xml and rss.xml.
   // Elsewhere in the code this is read back as `import.meta.env.SITE`.
-  site: 'https://yourdomain.com',
+  site: 'https://putcha-ak.com',
 
   integrations: [sitemap()],
 
