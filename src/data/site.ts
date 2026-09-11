@@ -20,10 +20,11 @@ export const SITE = {
   location: 'McKinney, TX',
   /** ~2 sentences. Used for the homepage intro and as the meta description. */
   blurb:
-    'Computer Engineering student at Texas A&M University and former Junior Software ' +
-    'Developer at One Sight Technology. My projects include an AI-powered product ' +
-    'ingredient scraper, a C++ document search engine, and an Arduino-based ' +
-    'environmental monitor.',
+    'Systems-oriented Computer Engineering student with a proven track record of ' +
+    'designing and executing end-to-end applications. Combines hands-on experience in ' +
+    'UI/UX prototyping and accessibility-focused mobile design with rigorous backend and ' +
+    'AI integration skills. Adept at navigating complex technical constraints to engineer ' +
+    'functional, high-performance software.',
   /** Short meta description fallback for pages that do not set their own. */
   description:
     'Portfolio of Akshay Putcha, a Computer Engineering student at Texas A&M University. ' +
@@ -179,5 +180,6 @@ export const CREDENTIALS: Credential[] = [
 
 export const NAV = [
   { label: 'Projects', href: '/projects/' },
+  { label: 'Now', href: '/now/' },
   { label: 'About', href: '/about/' },
 ] as const;
